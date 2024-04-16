@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager</title>
+<style>
+    table, tbody, tr, td {
+        border: 2px solid rgb(255, 255, 255);
+        background-color: black;
+        color: rgb(255, 255, 255);
+        border-collapse: collapse;
+        text-align: center;
+        padding: 20px;
+    }
+    .start-timer{
+        background-color:rgb(111, 244, 88);
+        padding: 10px;
+        margin: 10px;
+        font-weight: bold;
+        font-size: 15px;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .stop-timer{
+        background-color: rgb(247, 76, 76);
+        padding: 10px;
+        margin: 10px;
+        font-weight: bold;
+        font-size: 15px;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .edit-row{
+        background-color: rgb(48, 200, 251);
+        padding: 10px;
+        margin: 10px;
+        font-weight: bold;
+        font-size: 15px;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .delete-row{
+        background-color: rgb(214, 214, 85);
+        padding: 10px;
+        margin: 10px;
+        font-weight: bold;
+        font-size: 15px;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    *{
+      margin: 0%;
+    }
+    th{
+      border: 2px solid rgb(0, 0, 0);
+      background-color: rgb(83, 94, 251);
+      color: rgb(0, 0, 0);
+      border-collapse: collapse;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .full{
+      position: relative;
+      background-color: rgb(0, 0, 0);
+      color: rgb(255, 255, 255);
+    }
+    .TASKMANAGER{
+      background-color: rgb(83, 94, 251);
+      color: white;
+      text-align: center;
+      padding:10px;
+    }
+    table{
+      position: absolute;
+      margin-right: 4px;
+      width: 100%;
+    }
+    .tasks {
+      display: flex;
+      flex-direction: column;
+      margin: 10px;
+    }
+    .tasks label,
+    .tasks input,
+    .tasks button {
+      margin-bottom: 10px;
+    }
+    option{
+      background-color: rgb(0, 0, 0);
+      color: white;
+    }
+    .tasks label{
+      font-weight: bold;
+      font-size: 20px;
+      width: 100%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+    .tasks input,
+    .tasks button {
+      font-weight: bold;
+      padding: 10px;
+    }
+    @media only screen and (max-width: 768px) {
+        table, tbody, tr, td, th {
+            font-size: 14px;
+            padding: 10px;
+        }
+        .tasks label,
+        .tasks input,
+        .tasks button {
+            font-size: 14px;
+            padding: 8px;
+        }
+        .tasks label {
+            font-size: 16px;
+        }
+        .start-timer, .stop-timer, .edit-row ,.delete-row{
+            margin: 1px;
+            padding: 1px;
+            font-size: 14px;
+
+        }
+       
+    }
+</style>
+</head>
+<body>
+<div class="full">
+    <div class="TASKMANAGER">
+        <h1>TASK MANAGER</h1>
+    </div>
+  
+    <div class="tasks">
+        <label for="filter-task">Filter by Task:</label>
+        <select id="filter-task">
+            <option value="">All Tasks</option>
+        </select>
+    </div>
+  
+    <div class="tasks">
+        <label for="new-task">New Task:</label>
+        <input type="text" id="new-task" placeholder="Enter Task....">
+        <label for="new-description">Description:</label>
+        <input type="text" id="new-description" placeholder="Enter Description....">
+        <label for="new-duration">Duration:</label>
+        <input type="number" id="new-duration" placeholder="Enter Duration....">
+      
+        <button id="add-task">Add Task</button>
+    </div>
+
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script>
+var arrayObjectData = [
+    {
+        task: "meeting",
+        description: "hr-meeting",
+        duration: 20.00
+    },
+    {
+        task: "personal Break",
+        description: "lunch Break",
+        duration: 40.00
+    },
+    {
+        task: "meeting",
+        description: "personal-meeting",
+        duration: 10.00
+    },
+    {
+        task: "project work",
+        description: "E-commerce",
+        duration: 60.00
+    },
+    {
+        task: "personal Break",
+        description: "Tea Break",
+        duration: 5.00
+    }
+];
+
+document.addEventListener("DOMContentLoaded", function() {
+    var tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+    var filterTaskSelect = document.getElementById('filter-task');
+    var newTaskInput = document.getElementById('new-task');
+    var newDescriptionInput = document.getElementById('new-description');
+    var newDurationInput = document.getElementById('new-duration');
+    var addTaskButton = document.getElementById('add-task');
+
+    var timers = {};
+
+    function startTimer(taskName) {
+        timers[taskName] = setInterval(function() {
+            var rows = tableBody.getElementsByTagName('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName('td');
+                var task = cells[0].innerText;
+                if (task === taskName) {
+                    var durationCell = cells[2];
+                    var currentDuration = parseFloat(durationCell.innerText);
+                    durationCell.innerText = (currentDuration + 1).toFixed(2);
+                    break;
+                }
+            }
+        }, 1000); 
+    }
+
+    function stopTimer(taskName) {
+        clearInterval(timers[taskName]);
+    }
+
+    var tasks = arrayObjectData.map(item => item.task);
+    tasks = [...new Set(tasks)];
+    tasks.forEach(task => {
+        var option = document.createElement('option');
+        option.text = task;
+        filterTaskSelect.add(option);
+    });
+
+    arrayObjectData.forEach(function(data) {
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>' + data.task + '</td>' +
+                        '<td>' + data.description + '</td>' +
+                        '<td>' + data.duration + '</td>' +
+                        '<td><button class="start-timer">Start Timer</button><button class="stop-timer">Stop Timer</button><button class="edit-row">Edit</button><button class="delete-row">Delete</button></td>';
+        tableBody.appendChild(row);
+    });
+
+    filterTaskSelect.addEventListener('change', function() {
+        var selectedTask = this.value;
+        var rows = tableBody.getElementsByTagName('tr');
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            var task = cells[0].innerText;
+            if (selectedTask === '' || task === selectedTask) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    });
+
+    // Add new task
+    addTaskButton.addEventListener('click', function() {
+        var newTask = newTaskInput.value.trim();
+        var newDescription = newDescriptionInput.value.trim();
+        var newDuration = parseFloat(newDurationInput.value.trim());
+
+        if (newTask !== '' && newDescription !== '' && !isNaN(newDuration) && newDuration > 0) {
+            var newRow = document.createElement('tr');
+            newRow.innerHTML = '<td>' + newTask + '</td>' +
+                               '<td>' + newDescription + '</td>' +
+                               '<td>' + newDuration + '</td>' +
+                               '<td><button class="start-timer">Start Timer</button><button class="stop-timer">Stop Timer</button><button class="edit-row">Edit</button><button class="delete-row">Delete</button></td>';
+            tableBody.appendChild(newRow);
+            arrayObjectData.push({
+                task: newTask,
+                description: newDescription,
+                duration: newDuration
+            });
+            if (!tasks.includes(newTask)) {
+                var option = document.createElement('option');
+                option.text = newTask;
+                filterTaskSelect.add(option);
+                tasks.push(newTask);
+            }
+            newTaskInput.value = '';
+            newDescriptionInput.value = '';
+            newDurationInput.value = '';
+        } else {
+            alert('Please fill in all fields correctly.');
+        }
+    });
+
+    tableBody.addEventListener('click', function(event) {
+        var target = event.target;
+        if (target && target.tagName === 'BUTTON' && target.classList.contains('start-timer')) {
+            var row = target.closest('tr');
+            var task = row.getElementsByTagName('td')[0].innerText;
+            startTimer(task);
+        }
+    });
+
+    tableBody.addEventListener('click', function(event) {
+        var target = event.target;
+        if (target && target.tagName === 'BUTTON' && target.classList.contains('stop-timer')) {
+            var row = target.closest('tr');
+            var task = row.getElementsByTagName('td')[0].innerText;
+            stopTimer(task);
+
+            var durationCell = row.getElementsByTagName('td')[2];
+            var currentDuration = parseFloat(durationCell.innerText);
+            arrayObjectData.forEach(function(item) {
+                if (item.task === task) {
+                    item.duration = currentDuration;
+                    return;
+                }
+            });
+        }
+    });
+
+    tableBody.addEventListener('click', function(event) {
+        var target = event.target;
+        if (target && target.tagName === 'BUTTON' && target.classList.contains('edit-row')) {
+            var row = target.closest('tr');
+            var taskCell = row.getElementsByTagName('td')[0];
+            var descriptionCell = row.getElementsByTagName('td')[1];
+            var durationCell = row.getElementsByTagName('td')[2];
+            
+            newTaskInput.value = taskCell.innerText;
+            newDescriptionInput.value = descriptionCell.innerText;
+            newDurationInput.value = parseFloat(durationCell.innerText);
+
+            row.parentNode.removeChild(row);
+            arrayObjectData = arrayObjectData.filter(function(item) {
+                return item.task !== taskCell.innerText;
+            });
+        }
+    });
+
+    tableBody.addEventListener('click', function(event) {
+        var target = event.target;
+        if (target && target.tagName === 'BUTTON' && target.classList.contains('delete-row')) {
+            var row = target.closest('tr');
+            var task = row.getElementsByTagName('td')[0].innerText;
+            row.parentNode.removeChild(row);
+            arrayObjectData = arrayObjectData.filter(function(item) {
+                return item.task !== task;
+            });
+            tasks = arrayObjectData.map(item => item.task);
+            tasks = [...new Set(tasks)];
+            filterTaskSelect.innerHTML = '<option value="">All Tasks</option>';
+            tasks.forEach(task => {
+                var option = document.createElement('option');
+                option.text = task;
+                filterTaskSelect.add(option);
+            });
+        }
+    });
+
+});
+</script>
+</body>
+</html>
